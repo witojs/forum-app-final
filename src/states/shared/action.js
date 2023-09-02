@@ -1,6 +1,11 @@
 import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import api from '../../utils/api';
-import { receiveThreads } from '../threads/action';
+import {
+  downVoteThread,
+  neutralizeVoteThread,
+  receiveThreads,
+  upVoteThread,
+} from '../threads/action';
 import { receiveUsers } from '../users/action';
 
 function asyncPopulateUsersAndThreads() {
@@ -19,4 +24,61 @@ function asyncPopulateUsersAndThreads() {
   };
 }
 
-export default asyncPopulateUsersAndThreads;
+/* fungsi thunk vote thread & thread detail */
+function asyncUpVoteThread(threadId) {
+  return async (dispatch, getState) => {
+    dispatch(showLoading());
+    const { authUser } = getState();
+
+    dispatch(upVoteThread(threadId, authUser.id));
+
+    try {
+      await api.upVoteThread(threadId);
+    } catch (message) {
+      dispatch(upVoteThread(threadId, authUser.id));
+    }
+
+    dispatch(hideLoading());
+  };
+}
+
+function asyncDownVoteThread(threadId) {
+  return async (dispatch, getState) => {
+    dispatch(showLoading());
+    const { authUser } = getState();
+
+    dispatch(downVoteThread(threadId, authUser.id));
+
+    try {
+      await api.downVoteThread(threadId);
+    } catch (message) {
+      dispatch(downVoteThread(threadId, authUser.id));
+    }
+
+    dispatch(hideLoading());
+  };
+}
+
+function asyncNeutralizeVoteThread(threadId) {
+  return async (dispatch, getState) => {
+    dispatch(showLoading());
+    const { authUser } = getState();
+
+    dispatch(neutralizeVoteThread(threadId, authUser.id));
+
+    try {
+      await api.neutralizeVoteThread(threadId);
+    } catch (message) {
+      dispatch(neutralizeVoteThread(threadId, authUser.id));
+    }
+
+    dispatch(hideLoading());
+  };
+}
+
+export {
+  asyncPopulateUsersAndThreads,
+  asyncUpVoteThread,
+  asyncDownVoteThread,
+  asyncNeutralizeVoteThread,
+};

@@ -150,7 +150,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .thread-item__info h2 {
@@ -371,4 +371,19 @@ main {
 .comment-item__vote {
   display: flex;
   gap: 5px;
+}
+
+.button-vote {
+  border: none;
+  background-color: transparent;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.icon-voted {
+  color: var(--highlight-color);
+}
+
+.icon-unvoted {
+  color: var(--highlight-color);
 }
