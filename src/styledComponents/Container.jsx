@@ -14,7 +14,7 @@ export const textColor = theme('theme', {
 export const Container = styled.div`
   min-height: 100vh;
   font-family: 'Open Sans', sans-serif;
-
+  width: 100%;
   background-color: ${backgroundColor};
   color: ${textColor};
 `;

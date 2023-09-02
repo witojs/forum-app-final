@@ -1163,4 +1163,775 @@ Jalankan aplikasi menggunakan npm run dev dan pastikan aplikasi dapat berjalan d
 
 --> Membuat styled Component, dan buat branch baru untuk upload ke repository
 
-referensi styling Link Component with Styled Component.
+## Mengaplikasikan ES lint
+
+linter merupakan tool yang dapat membantu kita untuk menerapkan clean code pada code serta meminimalisir potensi bug. Kita akan memasangnya pada project.
+
+1. install ESlint dengan menggunakan command:
+
+```
+npm install eslint --save-dev
+```
+
+2. Jalankan configurasi awal dengan command:
+
+```
+npx eslint --init
+```
+
+Setelahnya akan muncul konfigurasi seperti berikut:
+
+- How would you like to use ESLint? → To check syntax, find problems, and enforce code style
+- What type of modules does your project use? → JavaScript modules (import/export)
+- Which framework does your project use? → React
+- Does your project use TypeScript? → No
+- Where does your code run? → Browser, Node
+- How would you like to define a style for your project? → use a popular style guide
+- Which style guide do you want to follow? → Airbnb (atau pilih style yang Anda inginkan)
+- What format do you want your config file to be in? → JSON
+- (List of react eslint plugins) install them now? → Yes
+- Which package manager do you want to use? (pilih yang Anda gunakan).
+
+3. Untuk mengaudit code kita dapat menggunakan command:
+
+```
+npx eslint ./src --ext .jsx --ext .js
+```
+
+Kita juga dapat membuat shortcut dengan menambahkan script pada package.json
+
+```json
+{
+  …
+  "scripts": {
+    …,
+    "lint": "eslint ./src --ext .jsx --ext .js"
+  },
+  …
+}
+```
+
+Sehingga ketika menjalankan eslint kita dapat menuliskan npm run lint pada command terminal.
+Kita juga dapat menonaktifkan rules di berkas .eslintrc.json dengan menulis seperti berikut:
+
+```json
+{
+  /* konfigurasi lainnya.. */
+  "rules": {
+    "linebreak-style": "off",
+    "no-alert": "off",
+    "no-underscore-dangle": "off",
+    "import/prefer-default-export": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-props-no-spreading": "off",
+    "object-curly-newline": "off"
+  }
+}
+```
+
+## Automate testing
+
+Pada bagian ini kita akan menerapkan automate testing pada fungsi reducer, fungsi thunk, menguji komponen react serta melakukan E2E test.
+
+### Menerapkan automate testing untuk fungsi reducer
+
+1. Install vitest menggunakan command berikut:
+
+```
+npm install vitest --save-dev
+```
+
+kemudian tambahkan command pada package.json
+
+```json
+"scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ./src --ext .jsx --ext .js",
+    "test": "vitest",
+  },
+```
+
+2. buat berkas pengujian dengan nama reducer.test.js pada folder states/threads
+
+```js
+//states/threads/reducer.test.js
+/* eslint-disable import/no-extraneous-dependencies */
+import { describe, it, expect } from 'vitest';
+import threadsReducer from './reducer';
+
+/**
+ * test scenario for threadsReducer
+ *
+ *  - threadsReducer function
+ *  - should return the initial state when given by unknown action
+ *  - should return the threads when given by RECEIVE_THREADS action
+ *  - should return the threads with new thread when given by ADD_THREAD action
+ *
+ */
+
+describe('threadsReducer function', () => {
+  it('should return the initial state when given by unknown action', () => {
+    /* arrange */
+    const initialState = [];
+    const action = { type: 'UNKNOWN' };
+
+    /* action */
+    const nextState = threadsReducer(initialState, action);
+
+    /* assert */
+    expect(nextState).toEqual(initialState);
+  });
+
+  it('should return the threads when given by RECEIVE_THREADS action', () => {
+    /* arrange */
+    const initialState = [];
+    const action = {
+      type: 'RECEIVE_THREADS',
+      payload: {
+        threads: [
+          {
+            id: 'thread-1',
+            title: 'Thread Pertama',
+            body: 'Ini adalah thread pertama',
+            category: 'General',
+            createdAt: '2021-06-21T07:00:00.000Z',
+            ownerId: 'users-1',
+            upVotesBy: [],
+            downVotesBy: [],
+            totalComments: 0,
+          },
+          {
+            id: 'thread-2',
+            title: 'Thread Kedua',
+            body: 'Ini adalah thread kedua',
+            category: 'General',
+            createdAt: '2021-06-21T07:00:00.000Z',
+            ownerId: 'users-2',
+            upVotesBy: [],
+            downVotesBy: [],
+            totalComments: 0,
+          },
+        ],
+      },
+    };
+
+    /* action */
+    const nextState = threadsReducer(initialState, action);
+
+    /* assert */
+    expect(nextState).toEqual(action.payload.threads);
+  });
+
+  it('should return the threads with new thread when given by ADD_THREAD action', () => {
+    /* arrange */
+    const initialState = [
+      {
+        id: 'thread-1',
+        title: 'Thread Pertama',
+        body: 'Ini adalah thread pertama',
+        category: 'General',
+        createdAt: '2021-06-21T07:00:00.000Z',
+        ownerId: 'users-1',
+        upVotesBy: [],
+        downVotesBy: [],
+        totalComments: 0,
+      },
+    ];
+
+    const action = {
+      type: 'ADD_THREAD',
+      payload: {
+        thread: {
+          id: 'thread-2',
+          title: 'Thread Kedua',
+          body: 'Ini adalah thread kedua',
+          category: 'General',
+          createdAt: '2021-06-21T07:00:00.000Z',
+          ownerId: 'users-2',
+          upVotesBy: [],
+          downVotesBy: [],
+          totalComments: 0,
+        },
+      },
+    };
+    /* action */
+    const nextState = threadsReducer(initialState, action);
+    /* assert */
+    expect(nextState).toEqual([action.payload.thread, ...initialState]);
+  });
+});
+```
+
+Pada code di atas, kita menerapkan pengujian pada masing-masing action yang diberikan ke threadsReducer. Kita melakukan pengujian dengan menggunakan langkah arrange, action dan assert.
+pada bagian arrange kita mempersiapkan variabel initialState dan action, kemudian pada bagian action kita memanggil fungsi reducer dengan argumen initialState dan action yang kita persiapkan sebelumnya. Terakhir, pada bagian assert kita mencocokan nilai dari threadReducer dengan nilai yang diharapkan pada fungsi reducer tersebut.
+Silahkan lakukan pengujian untuk fungsi reducer lainnya pada folder /src/states.
+
+## Menerapkan automate testing untuk fungsi thunk
+
+Kita akan menguji fungsi thunk, seperti yang kita ketahui bahwa fungsi thunk akan memanggil fungsi helper yang berinteraksi dengan API. Pada pengujian ini kita akan menggunakan mock data/ test double sebagai pengganti respon dari API.
+
+1. Install jsdom menggunakan command berikut:
+
+```
+npm install jsdom --save-dev
+```
+
+Jsdom adalah sebuah library JavaScript yang memungkikan penggunaan objek DOM di lingkungan Node.js. Dengan menggunakan jsdom, pengembang dapat berinteraksi dengan object global yang ada di browser secara programatik. Library ini biasanya digunakan untuk pengujian aplikasi web di lingkungan Node.js tanpa harus bergantung pada browser secara langsung.
+
+2. Buka berkas vite.config.js dan tambahkan test.environment seperti berikut:
+
+```js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+  },
+});
+```
+
+3. Buat berkas dengan nama action.test.js pada folder src/states/threads
+
+```js
+//states/threads/action.test.js
+import { afterEach, beforeEach, describe, vi, it, expect } from 'vitest';
+import { hideLoading, showLoading } from 'react-redux-loading-bar';
+import api from '../../utils/api';
+import { addThread, asyncAddThread } from './action';
+
+/**
+ * skenario test
+ *
+ * - asyncAddThread thunk
+ * - should dispatch action correctly when data fetching success
+ * - should dispatch action and call alert correctly when data fetching failed
+ */
+
+const fakeAddThreadResponse = {
+  id: 'thread-1',
+  title: 'Thread Pertama',
+  body: 'Ini adalah thread pertama',
+  category: 'General',
+  createdAt: '2021-06-21T07:00:00.000Z',
+  ownerId: 'users-1',
+  upVotesBy: [],
+  downVotesBy: [],
+  totalComments: 0,
+};
+
+const title = 'Thread Pertama';
+const body = 'Ini adalah thread pertama';
+const category = 'General';
+
+const fakeErrorResponse = new Error('Ups, something went wrong');
+
+describe('asyncAddThread thunk', () => {
+  beforeEach(() => {
+    api._createThread = api.createThread;
+  });
+
+  afterEach(() => {
+    api.createThread = api._createThread;
+  });
+
+  delete api._createThread;
+
+  it('should dispatch action correctly when data fetching success', async () => {
+    /* arrange */
+    /* stub implementation */
+    api.createThread = () => Promise.resolve(fakeAddThreadResponse);
+    /* mock dispatch */
+    const dispatch = vi.fn();
+
+    /* action */
+    await asyncAddThread({ title, body, category })(dispatch);
+
+    /* assert */
+    expect(dispatch).toHaveBeenCalledWith(showLoading());
+    expect(dispatch).toHaveBeenCalledWith(addThread(fakeAddThreadResponse));
+    expect(dispatch).toHaveBeenCalledWith(hideLoading());
+  });
+
+  it('should dispatch action and call alert correctly when data fetching failed', async () => {
+    /* arrange */
+    /* stub implementation */
+    api.createThread = () => Promise.reject(fakeErrorResponse);
+    /* mock dispatch */
+    const dispatch = vi.fn();
+    /* mock alert */
+    window.alert = vi.fn();
+
+    /* action */
+    await asyncAddThread({ title, body, category })(dispatch);
+
+    /* assert */
+    expect(dispatch).toHaveBeenCalledWith(showLoading());
+    expect(dispatch).toHaveBeenCalledWith(hideLoading());
+    expect(window.alert).toHaveBeenCalledWith(fakeErrorResponse.message);
+  });
+});
+```
+
+Pada code di atas, kita melakukan stub implementation terhadap fungsi api.createThread agar mendapatkan hasil yang terprediksi. Kita juga menggunakan mock untuk fungsi dispatch menggunakan fungsi vi.fn().
+Silahkan melakukan pengujian untuk berkas lainnya di folder src/states.
+
+Jalankan pengujian menggunakan command npm run test dan pastikan test berhasil.
+
+## Melakukan pengujian pada React Komponen
+
+Kita akan menguji react komponen menggunakan react testing library. Note untuk jest-dom kita akan menginstall versi "@testing-library/jest-dom": "^5.16.5", dikarenakan versi terbaru terdapat perubahan dalam mengambil matchers pada jest-dom.
+
+1. Install React Testing library dengan command berikut:
+
+```
+npm install @testing-library/react @testing-library/user-event @testing-library/jest-dom --save-dev
+```
+
+2. Buat berkas baru dengan nama LoginInput.test.jsx pada folder src/components
+
+```js
+/* eslint-disable object-curly-newline */
+/**
+ * skenario testing
+ *
+ * - LoginInput component
+ *   - should handle email typing correctly
+ *   - should handle password typing correctly
+ *   - should call login function when login button is clicked
+ */
+
+import React from 'react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import matchers from '@testing-library/jest-dom/matchers';
+import LoginInput from './LoginInput';
+
+expect.extend(matchers);
+
+describe('LoginInput Component', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('should handle email typing correctly', async () => {
+    /* arrange */
+    render(<LoginInput login={() => {}} />);
+    const emailInput = await screen.getByPlaceholderText('Email');
+
+    /* action */
+    await userEvent.type(emailInput, 'emailtest');
+
+    /* assert */
+    expect(emailInput).toHaveValue('emailtest');
+  });
+
+  it('should handle password typing correctly', async () => {
+    /* arrange */
+    render(<LoginInput login={() => {}} />);
+    const passwordInput = await screen.getByPlaceholderText('Password');
+
+    /* action */
+    await userEvent.type(passwordInput, 'passwordtest');
+
+    /* assert */
+    expect(passwordInput).toHaveValue('passwordtest');
+  });
+
+  it('should call login function when login button is clicked', async () => {
+    /* arrange */
+    const mockLogin = vi.fn();
+    render(<LoginInput login={mockLogin} />);
+
+    const emailInput = await screen.getByPlaceholderText('Email');
+    await userEvent.type(emailInput, 'emailtest');
+    const passwordInput = await screen.getByPlaceholderText('Password');
+    await userEvent.type(passwordInput, 'passwordtest');
+    const loginButton = await screen.getByRole('button', { name: 'Login' });
+
+    /* action */
+    await userEvent.click(loginButton);
+
+    /* assert */
+    expect(mockLogin).toBeCalledWith({
+      email: 'emailtest',
+      password: 'passwordtest',
+    });
+  });
+});
+```
+
+fungsi render() di atas mirip seperti penggunaan render pada react-dom. Pada awal body fungsi describe kita memanggil fungsi hook afterEach disertai dengan pemanggilan fungsi cleanup. Hal ini untuk memastikan semua komponen dibersihkan terlebih setiap sebuah pengujian dilakukan.
+Pada bagian arrange, kita melakukan render terhadap komponen LoginInput. Kemudian kita mengambil elemen input email menggunakan fungsi screen.getByPlaceholderText('Email').
+setelah mendapatkan elemen input, pada bagian action kemudian kita melakukan userEvent dengan mengetik email menggunakan fungsi await userEvent.type(emailInput, 'emailtest'). Terakhir pada bagian assert kita mencocokan emailInput untuk mempunyai value yang sama dengan email yang kita masukan pada fungsi userEvent.type(). method .toHaveValue sendiri tidak terdapat pada expect pada vitest, sehingga kita melakukan extends matchers dari react testing library jest-dom.
+
+## Menerapkan E2E test menggunakan Cypress
+
+### Melakukan konfigurasi Cypress
+
+1. Install Cypress menggunakan command berikut:
+
+```
+npm install cypress --save-dev
+```
+
+2. Install juga ESLint plugin Cypress dengan command berikut:
+
+```
+npm install eslint-plugin-cypress --save-dev
+```
+
+3. Buka berkas .eslintrc.json dan tambahkan cypress pada konfigurasi plugins
+
+```json
+"plugins": ["react", "react-hooks", "cypress"],
+```
+
+4. Masih dalam berkas konfigurasi ESLint, tambahkan juga cypress/globals: true pada konfigurasi env.
+
+```json
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true,
+    "cypress/globals": true
+  },
+```
+
+5. Jalankan cypress menggunakan command:
+
+```
+npx cypress open
+```
+
+6. konfigurasi cypress akan muncul, pilih E2E testing, lalu pilih continue
+7. Setelah konfigurasi selesai, pilih jenis browser untuk menjalankan E2E testing
+8. Cypress akan membuka browser dan menampilkan dashboard pengujian E2E
+9. Buat pengujian baru dengan memilih opsi create new empty spec dan ubah nama berkas menjadi login.cy.js
+10. Pada folder project akan muncul folder baru dengan nama cypress serta cypress.config.js. Kita akan men-disable fitur video pada cypress.
+11. pada berkas cypress.config.js tambahkan properti video:false seperti berikut:
+
+```js
+/* eslint-disable no-unused-vars */
+/* eslint-disable import/no-extraneous-dependencies */
+import { defineConfig } from 'cypress';
+
+export default defineConfig({
+  e2e: {
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+    },
+  },
+  video: false,
+});
+```
+
+12. buat npm runner script untuk cypress pada berkas package.json
+
+```json
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ./src --ext .jsx --ext .js",
+    "test": "vitest",
+    "e2e": "cypress run",
+  },
+```
+
+### Melakukan Pengujian proses login dengan cypress
+
+1. Buka berkas cypress/e2e/login.cy.js, hapus seluruh code dan tuliskan code berikut:
+
+```js
+//cypress/e2e/login.cy.js
+/**
+ * - Login spec
+ *   - should display login page correctly
+ *   - should display alert when email is empty
+ *   - should display alert when password is empty
+ *   - should display alert when email and password are wrong
+ *   - should display homepage when email and password are correct
+ */
+describe('Login Spec', () => {
+  beforeEach(() => {
+    cy.visit('http://localhost:5173/');
+  });
+  it('should display login page correctly', () => {
+    cy.get('input[placeholder="Email"]').should('be.visible');
+    cy.get('input[placeholder="Password"]').should('be.visible');
+    cy.get('button')
+      .contains(/^Login$/)
+      .should('be.visible');
+  });
+
+  it('should display alert when email is empty', () => {
+    // klik tombol login tanpa mengisi username
+    cy.get('button')
+      .contains(/^Login$/)
+      .click();
+
+    // memverifikasi window.alert untuk menampilkan pesan dari API
+    cy.on('window:alert', (str) => {
+      expect(str).to.equal('"email" is not allowed to be empty');
+    });
+  });
+
+  it('should display alert when password is empty', () => {
+    // mengisi username
+    cy.get('input[placeholder="Email"]').type('wito@dicoding.com');
+
+    // klik tombol login tanpa mengisi password
+    cy.get('button')
+      .contains(/^Login$/)
+      .click();
+
+    // memverifikasi window.alert untuk menampilkan pesan dari API
+    cy.on('window:alert', (str) => {
+      expect(str).to.equal('"password" is not allowed to be empty');
+    });
+  });
+
+  it('should display alert when email and password are wrong', () => {
+    // mengisi email
+    cy.get('input[placeholder="Email"]').type('wito@dicoding.com');
+
+    // mengisi password yang salah
+    cy.get('input[placeholder="Password"]').type('wrong_password');
+
+    // menekan tombol Login
+    cy.get('button')
+      .contains(/^Login$/)
+      .click();
+
+    // memverifikasi window.alert untuk menampilkan pesan dari API
+    cy.on('window:alert', (str) => {
+      expect(str).to.equal('Email or password is wrong');
+    });
+  });
+
+  it('should display homepage when email and password are correct', () => {
+    // mengisi username
+    cy.get('input[placeholder="Email"]').type('wito@dicoding.com');
+
+    // mengisi password
+    cy.get('input[placeholder="Password"]').type('123456');
+
+    // menekan tombol Login
+    cy.get('button')
+      .contains(/^Login$/)
+      .click();
+
+    // memverifikasi bahwa elemen yang berada di homepage ditampilkan
+    cy.get('nav')
+      .contains(/^Threads$/)
+      .should('be.visible');
+    cy.get('button').contains('Sign out').should('be.visible');
+  });
+});
+```
+
+2. jalankan pengujian menggunakan command npm run e2e dan pastikan test berjalan dengan baik.
+
+## CI/CD menggunakan github Action & vercel
+
+Pembuatan aplikasi dan automate testing aplikasi telah kita lakukan, selanjutnya kita akan mendeploy aplikasi melalui vercel dengan terlebih dahulu menerapkan continuos integration melalui github Action.
+Berikut Rincian dari alur CI/CD tanpa tahapan review.
+
+1. Menghubungkan proyek ke Git provider, seperti GitHub atau Gitlab.
+2. Membuat konfigurasi continuous integration pada repository.
+3. Melakukan perubahan pada kode.
+4. Commit dan push ke version control.
+5. Tool CI akan otomatis menjalankan build (jika dibutuhkan), unit testing, integration testing, dan end-to-end testing.
+6. Jika hasil testing berhasil, tahapan selanjutnya adalah proses deployment.
+
+## CI menggunakan github Actions
+
+### Memasang Git pada komputer
+
+1. Unduh git melalui halaman berikut: https://git-scm.com/downloads
+2. untuk memastikan git telah terpasang tuliskan command berikut pada terminal CMD
+
+```
+git -v
+```
+
+3. Untuk menetapkan nama dan email di Git, jalankan perintah berikut pada PowerShell/CMD/Terminal.
+
+```
+git config --global user.name "Your Name"
+
+git config --global user.email "you@example.com"
+```
+
+### Membuat Local Repository
+
+1. Pada project inisialisasi git repository menggunakan command:
+
+```
+git init
+```
+
+2. Masukan seluruh source code kecuali yang terdapat pada daftar.gitignore dengan perintah berikut:
+
+```
+git add .
+```
+
+Tanda titik setelah add berarti mencakup semua file dan folder pada project.
+
+3. lakukan commit pertama dengan command berikut:
+
+```
+git commit -m “initial commit”
+```
+
+### Menghubungkan akun github di local dengan github CLI
+
+Kita akan menghubungkan akun github dengan sistem git di local komputer. kita akan menggunakan github CLI
+
+1. Install github CLI pada halaman berikut https://github.com/cli/cli#installation
+2. cek apakah sudah terinstall dengan menuliskan command berikut pada terminal CMD
+
+```
+gh --version
+```
+
+3. Login akun github dengan menggunakan command:
+
+```
+gh auth login
+```
+
+akan muncul konfigurasi seperti berikut:
+
+- What account do you want to log into? → GitHub.com
+- What is your preferred protocol for Git operations? → HTTPS
+- Authenticate Git with your GitHub credentials? → Y
+- How would you like to authenticate GitHub CLI? → Login with a web browser
+
+4. gh akan menampilkan one-time code, salin code tersebut kemudian tekan enter dan browser akan terbuka. masukan one-time code yang telah diberikan.
+5. klik authorize github
+
+### Membuat Remote Repository
+
+Selanjutnya kita akan membuat remote repository serta mengunggah local repository ke remote repository.
+
+1. Buat repository baru pada akun github
+2. Salin alamat repository yang berupa alamat HTTPS
+3. Kembali ke project pada terminal tuliskan command berikut:
+
+```
+git remote add origin <alamat remote repository Anda>
+```
+
+4. setelah berhasil terhubung, unggah local repository ke remote repository dengan command
+
+```
+git push origin master
+```
+
+5. Cek halaman repository pada github, dan pastikan source code telah terunggah ke remote repository.
+
+### Membuat CI Menggunakan Github Action
+
+Proses CI pada github Action seperti berikut:
+
+- Developer melakukan pull request ke remote repository
+- Github akan menjalankan Action dan menjalankan pengujian otomatis
+- Jika pengujian lulus, pull request akan di merge. Jika gagal pull request akan di tutup
+- setelah di merge kode di branch utama akan berubah dan memicu vercel untuk men-deploy aplikasi
+
+1. buat folder baru dengan nama .github/workflows dan buat berkas ci.yml
+
+```yml
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  automation-test-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install and test
+        run: |
+          npm install
+          npm run ci:test
+```
+
+Pada code di atas kita menggunakan npm run ci:test hal ini dikarenakan agar runner dapat berjalan secara otomatis.
+
+2. Install dependency start-server-and-test menggunakan command berikut:
+
+```
+npm install start-server-and-test --save-dev
+```
+
+3. kemudian tambahkan runner script pada package.json
+
+```json
+ "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ./src --ext .jsx --ext .js",
+    "test": "vitest",
+    "e2e": "cypress run",
+    "ci:test": "vitest --no-watch && start-server-and-test dev http-get://localhost:5173 e2e"
+  },
+```
+
+4. commit perubahan dan push ke remote repository dengan command berikut:
+
+```
+git add .
+git commit -m "add ci action"
+git push origin master
+```
+
+5. masuk ke halaman repository pada github dan masuk ke menu Actions, pastikan terdapat action Continuous Integration
+
+## CD menggunakan Vercel
+
+1. Daftar akun Vercel pada halaman https://vercel.com/ disarankan menggunakan akun github yang kita pakai pada project
+2. Untuk mulai men-deploy aplikasi, impor aplikasi via Git repository, klik tombol Continue with GitHub.
+3. Berikan izin individual dengan memilih Only Select Repository dan pilih repository project dan pilih tombol install
+4. Masukan password github untuk mengkonfirmasi pemasangan vercel pada github
+5. Masuk ke dashboard vercel, pilih Import pada repository project. Vercel akan otomatis membaca dan merekomendasikan configurasi yang sesuai pada project yang kita impor
+6. Klik Tombol Deploy untuk men-deploy aplikasi, Tunggu hingga proses selesai
+7. Aplikasi telah di deploy! buka aplikasi dari url yang disediakan oleh vercel.
+
+Setiap perubahan pada repository akan dilakukan CI oleh github Actions. Ketika ada pull Request, maka continuous integration akan dijalankan untuk memastikan pengujian pada aplikasi. Jika pengujian lolos kita dapat melakukan merge pull request dan Vercel akan secara otomatis men-deploy ulang aplikasi dengan perubahan yang telah kita lakukan.
+Ada Baiknya untuk melakukan branch protection kepada branch master atau main, dikarenakan perubahan pada branch master atau main akan secara otomatis dilakukan CI/CD tanpa melalui proses pull Request.
+
+1. Pada halaman project repository github pilih menu setting
+2. Pilih branches
+3. Pilh Add branch protection rule
+4. Centang pilihan berikut:
+
+- Require a pull request before merging: check
+- Require status check to pass before merging: check
+- Status checks that are required: automation-test-job (GitHub Actions)
+
+5. klik tombol create
+
+Branch protection telah diterapkan. Selamat anda berhasil mengerjakan project forum ini dengan baik.
+
+Sumber: https://www.dicoding.com/
+Referensi styling Link Component with Styled Component:
+https://stackoverflow.com/questions/69869021/link-component-not-working-with-styled-components
