@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import api from '../../utils/api';
-import asyncPopulateUsersAndThreads from './action';
+import { asyncPopulateUsersAndThreads } from './action';
 import { receiveThreads } from '../threads/action';
 import { receiveUsers } from '../users/action';
 

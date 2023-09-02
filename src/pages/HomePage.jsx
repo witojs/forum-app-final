@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ThreadList from '../components/ThreadList';
-import asyncPopulateUsersAndThreads from '../states/shared/action';
+import { asyncPopulateUsersAndThreads } from '../states/shared/action';
 
 function HomePage() {
   const threads = useSelector((states) => states.threads);

@@ -2,10 +2,21 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { FaReply } from 'react-icons/fa';
-import { FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
+import {
+  AiOutlineDislike,
+  AiOutlineLike,
+  AiFillDislike,
+  AiFillLike,
+} from 'react-icons/ai';
 import postedAt from '../utils';
+import {
+  asyncDownVoteThread,
+  asyncNeutralizeVoteThread,
+  asyncUpVoteThread,
+} from '../states/shared/action';
+import NavBarLink from '../styledComponents/NavBarLink';
 
 function ThreadItem({
   category,
@@ -17,36 +28,59 @@ function ThreadItem({
   user,
   upVotesBy,
   downVotesBy,
+  authUser,
 }) {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const onThreadClick = () => {
-    navigate(`/threads/${id}`);
+  const upVote = () => {
+    dispatch(asyncUpVoteThread(id));
   };
 
-  const onThreadPress = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      navigate(`/threads/${id}`);
-    }
+  const downVote = () => {
+    dispatch(asyncDownVoteThread(id));
+  };
+
+  const neutralizeVote = () => {
+    dispatch(asyncNeutralizeVoteThread(id));
   };
 
   return (
-    <div
-      className="thread-item"
-      role="button"
-      tabIndex={0}
-      onClick={onThreadClick}
-      onKeyDown={onThreadPress}
-    >
+    <div className="thread-item" role="button" tabIndex={0}>
       <p className="thread-item__category">#{category}</p>
       <article className="thread-item__info">
-        <h2>{title}</h2>
+        <NavBarLink to={`/threads/${id}`}>
+          <h2>{title}</h2>
+        </NavBarLink>
         <p>{body}</p>
       </article>
       <div className="thread-item__detail">
-        <FiThumbsUp />
+        <button
+          className="button-vote"
+          type="button"
+          onClick={
+            upVotesBy.includes(authUser || ' ') ? neutralizeVote : upVote
+          }
+        >
+          {upVotesBy.includes(authUser || ' ') ? (
+            <AiFillLike className="icon-voted" />
+          ) : (
+            <AiOutlineLike className="icon-unvoted" />
+          )}
+        </button>
         <span>{upVotesBy.length}</span>
-        <FiThumbsDown />
+        <button
+          className="button-vote"
+          type="button"
+          onClick={
+            downVotesBy.includes(authUser || ' ') ? neutralizeVote : downVote
+          }
+        >
+          {downVotesBy.includes(authUser || ' ') ? (
+            <AiFillDislike className="icon-voted" />
+          ) : (
+            <AiOutlineDislike className="icon-unvoted" />
+          )}
+        </button>
         <span>{downVotesBy.length}</span>
         <p>
           <FaReply />
@@ -71,6 +105,7 @@ export default ThreadItem;
 
 ThreadItem.propTypes = {
   title: PropTypes.string.isRequired,
+  authUser: PropTypes.string.isRequired,
   body: PropTypes.string.isRequired,
   category: PropTypes.string.isRequired,
   createdAt: PropTypes.string.isRequired,
@@ -78,6 +113,5 @@ ThreadItem.propTypes = {
   id: PropTypes.string.isRequired,
   user: PropTypes.objectOf(PropTypes.string).isRequired,
   upVotesBy: PropTypes.arrayOf(PropTypes.string).isRequired,
-  downVotesBy: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string))
-    .isRequired,
+  downVotesBy: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
