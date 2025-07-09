@@ -1,16 +1,15 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import useInput from '../hooks/useInput';
+import { ThreadInputProps } from '../types/redux';
 
-function ThreadInput({ addThread }) {
+function ThreadInput({ addThread }: ThreadInputProps): JSX.Element {
   const [title, onTitleChange] = useInput('');
   const [body, onBodyChange] = useInput('');
   const [category, onCategoryChange] = useInput('');
   const navigate = useNavigate();
 
-  function addthread() {
+  function addthread(): void {
     addThread({ title, body, category });
     navigate('/');
   }
@@ -32,7 +31,11 @@ function ThreadInput({ addThread }) {
           onChange={onCategoryChange}
           placeholder="Kategory"
         />
-        <textarea type="text" value={body} onChange={onBodyChange} required />
+        <textarea
+          value={body}
+          onChange={onBodyChange}
+          required
+        />
         <button type="button" onClick={addthread}>
           Buat
         </button>
@@ -42,7 +45,3 @@ function ThreadInput({ addThread }) {
 }
 
 export default ThreadInput;
-
-ThreadInput.propTypes = {
-  addThread: PropTypes.func.isRequired,
-};

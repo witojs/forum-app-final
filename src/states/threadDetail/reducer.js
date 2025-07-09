@@ -18,7 +18,7 @@ function threadDetailReducer(threadDetail = null, action = {}) {
       return {
         ...threadDetail,
         downVotesBy: threadDetail.downVotesBy.filter(
-          (id) => id !== action.payload.userId
+          (id) => id !== action.payload.userId,
         ),
         upVotesBy: threadDetail.upVotesBy.includes(action.payload.userId)
           ? threadDetail.upVotesBy.filter((id) => id !== action.payload.userId)
@@ -29,12 +29,12 @@ function threadDetailReducer(threadDetail = null, action = {}) {
       return {
         ...threadDetail,
         upVotesBy: threadDetail.upVotesBy.filter(
-          (id) => id !== action.payload.userId
+          (id) => id !== action.payload.userId,
         ),
         downVotesBy: threadDetail.downVotesBy.includes(action.payload.userId)
           ? threadDetail.downVotesBy.filter(
-              (id) => id !== action.payload.userId
-            )
+            (id) => id !== action.payload.userId,
+          )
           : [...threadDetail.downVotesBy, action.payload.userId],
       };
 
@@ -42,10 +42,10 @@ function threadDetailReducer(threadDetail = null, action = {}) {
       return {
         ...threadDetail,
         upVotesBy: threadDetail.upVotesBy.filter(
-          (id) => id !== action.payload.userId
+          (id) => id !== action.payload.userId,
         ),
         downVotesBy: threadDetail.downVotesBy.filter(
-          (id) => id !== action.payload.userId
+          (id) => id !== action.payload.userId,
         ),
       };
 
@@ -58,13 +58,13 @@ function threadDetailReducer(threadDetail = null, action = {}) {
               ...comment,
               upVotesBy: comment.upVotesBy.includes(action.payload.userId)
                 ? [
-                    ...comment.upVotesBy.filter(
-                      (id) => id !== action.payload.userId
-                    ),
-                  ]
+                  ...comment.upVotesBy.filter(
+                    (id) => id !== action.payload.userId,
+                  ),
+                ]
                 : [...comment.upVotesBy, action.payload.userId],
               downVotesBy: comment.downVotesBy.filter(
-                (id) => id !== action.payload.userId
+                (id) => id !== action.payload.userId,
               ),
             };
           }
@@ -81,14 +81,14 @@ function threadDetailReducer(threadDetail = null, action = {}) {
             return {
               ...comment,
               upVotesBy: comment.upVotesBy.filter(
-                (id) => id !== action.payload.userId
+                (id) => id !== action.payload.userId,
               ),
               downVotesBy: comment.downVotesBy.includes(action.payload.userId)
                 ? [
-                    ...comment.downVotesBy.filter(
-                      (id) => id !== action.payload.userId
-                    ),
-                  ]
+                  ...comment.downVotesBy.filter(
+                    (id) => id !== action.payload.userId,
+                  ),
+                ]
                 : [...comment.downVotesBy, action.payload.userId],
             };
           }
@@ -105,10 +105,10 @@ function threadDetailReducer(threadDetail = null, action = {}) {
             return {
               ...comment,
               upVotesBy: comment.upVotesBy.filter(
-                (id) => id !== action.payload.userId
+                (id) => id !== action.payload.userId,
               ),
               downVotesBy: comment.downVotesBy.filter(
-                (id) => id !== action.payload.userId
+                (id) => id !== action.payload.userId,
               ),
             };
           }

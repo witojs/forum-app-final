@@ -18,13 +18,12 @@ import Loading from './components/Loading';
 import { Container } from './styledComponents/Container';
 import DarkThemeProvider from './styledComponents/DarkThemeProvider';
 import { toggleDarkThemeThunk } from './states/theme/action';
+import { RootState } from './types';
 
-function App() {
-  const authUser = useSelector((states) => states.authUser);
-
-  const isPreload = useSelector((states) => states.isPreload);
-
-  const darkTheme = useSelector((states) => states.darkTheme);
+function App(): JSX.Element {
+  const authUser = useSelector((state: RootState) => state.authUser);
+  const isPreload = useSelector((state: RootState) => state.isPreload);
+  const darkTheme = useSelector((state: RootState) => state.darkTheme);
   const themeKey = localStorage.getItem('theme');
   const storedTheme = themeKey ? JSON.parse(themeKey) : darkTheme;
 
@@ -34,7 +33,7 @@ function App() {
     dispatch(asyncPreloadProcess());
   }, [dispatch]);
 
-  const onSignOut = () => {
+  const onSignOut = (): void => {
     dispatch(asyncUnsetAuthUser());
   };
 

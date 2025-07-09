@@ -94,7 +94,7 @@ describe('asyncReceiveThreadDetail thunk', () => {
     expect(dispatch).toHaveBeenCalledWith(showLoading());
     expect(dispatch).toHaveBeenCalledWith(clearThreadDetail());
     expect(dispatch).toHaveBeenCalledWith(
-      receiveThreadDetail(fakeGetThreadDetailResponse)
+      receiveThreadDetail(fakeGetThreadDetailResponse),
     );
     expect(dispatch).toHaveBeenCalledWith(hideLoading());
   });
@@ -143,7 +143,7 @@ describe('asyncAddComment thunk', () => {
     /* assert */
     expect(dispatch).toHaveBeenCalledWith(showLoading());
     expect(dispatch).toHaveBeenCalledWith(
-      addComment(fakeCreateCommentResponse)
+      addComment(fakeCreateCommentResponse),
     );
     expect(dispatch).toHaveBeenCalledWith(hideLoading());
   });
