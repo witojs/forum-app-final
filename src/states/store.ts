@@ -6,6 +6,7 @@ import isPreloadReducer from './isPreload/reducer';
 import threadsReducer from './threads/reducer';
 import threadDetailReducer from './threadDetail/reducer';
 import themeReducer from './theme/reducer';
+import type { RootState } from '../types';
 
 const store = configureStore({
   reducer: {
@@ -19,4 +20,6 @@ const store = configureStore({
   },
 });
 
+export type { RootState };
+export type AppDispatch = typeof store.dispatch;
 export default store;

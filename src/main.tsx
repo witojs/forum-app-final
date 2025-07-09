@@ -1,4 +1,3 @@
-/* eslint-disable comma-dangle */
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -8,9 +7,8 @@ import store from './states/store';
 
 import './styles/style.css';
 
-const root = createRoot(document.getElementById('root'));
+const root = createRoot(document.getElementById('root')!);
 
-// TODO: wrap App with store provider
 root.render(
   <Provider store={store}>
     <BrowserRouter>
@@ -18,5 +16,5 @@ root.render(
         <App />
       </StrictMode>
     </BrowserRouter>
-  </Provider>
+  </Provider>,
 );

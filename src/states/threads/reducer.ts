@@ -1,7 +1,8 @@
-/* eslint-disable comma-dangle */
+import { ThreadsAction } from '../../types/redux';
+import { Thread } from '../../types/api';
 import { ActionType } from './action';
 
-function threadsReducer(threads = [], action = {}) {
+function threadsReducer(action: ThreadsAction, threads: Thread[] = []): Thread[] {
   switch (action.type) {
     case ActionType.RECEIVE_THREADS:
       return action.payload.threads;
@@ -14,7 +15,7 @@ function threadsReducer(threads = [], action = {}) {
           return {
             ...thread,
             downVotesBy: thread.downVotesBy.filter(
-              (id) => id !== action.payload.userId
+              (id) => id !== action.payload.userId,
             ),
             upVotesBy: thread.upVotesBy.includes(action.payload.userId)
               ? thread.upVotesBy.filter((id) => id !== action.payload.userId)
@@ -31,7 +32,7 @@ function threadsReducer(threads = [], action = {}) {
           return {
             ...thread,
             upVotesBy: thread.upVotesBy.filter(
-              (id) => id !== action.payload.userId
+              (id) => id !== action.payload.userId,
             ),
             downVotesBy: thread.downVotesBy.includes(action.payload.userId)
               ? thread.downVotesBy.filter((id) => id !== action.payload.userId)
@@ -49,10 +50,10 @@ function threadsReducer(threads = [], action = {}) {
           return {
             ...thread,
             upVotesBy: thread.upVotesBy.filter(
-              (id) => id !== action.payload.userId
+              (id) => id !== action.payload.userId,
             ),
             downVotesBy: thread.downVotesBy.filter(
-              (id) => id !== action.payload.userId
+              (id) => id !== action.payload.userId,
             ),
           };
         }
